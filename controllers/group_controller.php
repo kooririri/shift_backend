@@ -25,12 +25,20 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 $user_id = 0;
-if(array_key_exists("userId",$request_data)){
+if(isset($request_data['userId'])){
     $user_id = $request_data['userId'];
 }
 $post_no = 0;
-if(array_key_exists("postNo",$request_data)){
+if(isset($request_data['postNo'])){
     $post_no = $request_data['postNo'];
+}
+$group_id = 0;
+if(isset($request_data['groupId'])){
+    $group_id = $request_data['groupId'];
+}
+$list = array();
+if(isset($request_data['list'])){
+    $list = $request_data['list'];
 }
 
 
@@ -53,54 +61,69 @@ if($request_method === 'POST'&&$post_no ===1){
     echo json_encode(array('result' => $response_data));
 }
 
-$group_id = 0;
-if(array_key_exists("groupId",$request_data)){
-    $group_id = $request_data['groupId'];
-}
+
 
 
 if($request_method === 'POST'&&$post_no ===2){
-    $sql = "SELECT u.nickname AS nickname,u.user_id AS user_id FROM group_member gm LEFT JOIN user u ON gm.user_id = u.user_id WHERE gm.group_id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $group_id);
+    $stmt = $conn->prepare("SELECT * FROM black_list b LEFT JOIN user u ON b.black_user_id = u.user_id WHERE b.user_id = ? AND b.group_id = ?");
+    $stmt->bind_param("ii", $user_id,$group_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $response_data = [];
     if ($result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
             $response_data[] = [
-                'nickname' => $row['nickname'],
                 'user_id' => $row['user_id'],
+                'group_member_id' => $row['black_user_id'],
+                'black_rank' => $row['black_rank'],
+                'nickname' => $row['nickname'],
             ];
         }
     }
-    $stmt->close();
-    echo json_encode(array('result' => $response_data));
+    if(!empty($response_data)){
+        echo json_encode(array('result' => $response_data));
+    }else{
+        $sql = "SELECT u.nickname AS nickname,u.user_id AS group_member_id FROM group_member gm LEFT JOIN user u ON gm.user_id = u.user_id WHERE gm.group_id = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $group_id);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $response_data = [];
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $response_data[] = [
+                    'nickname' => $row['nickname'],
+                    'group_member_id' => $row['group_member_id'],
+                    'black_rank' => 0,
+                ];
+            }
+        }
+        $stmt->close();
+        echo json_encode(array('result' => $response_data));
+    }
 }
 
 
-$list = array();
-if(array_key_exists("list",$request_data)){
-    $list = $request_data['list'];
-}
-$post_no = 0;
-if(array_key_exists("postNo",$request_data)){
-    $post_no = $request_data['postNo'];
-}
-$logined_id = 0;
-if(array_key_exists("userId",$request_data)){
-    $logined_id = $request_data['userId'];
-}
+
+// $post_no = 0;
+// if(array_key_exists("postNo",$request_data)){
+//     $post_no = $request_data['postNo'];
+// }
+// $logined_id = 0;
+// if(array_key_exists("userId",$request_data)){
+//     $logined_id = $request_data['userId'];
+// }
+$success_flag = false;
 if($request_method === 'POST'&&$post_no ===3){
-    foreach($request_data['list'] as $val){
-        $user_id = $val['UserId'];
+    foreach($list as $val){
+        $black_user_id = $val['UserId'];
         $nick_name = $val['NickName'];
         $color_code = $val['ColorCode'];
         $black_rank = $val['BlackRank'];
         $id = $val['Id'];
-        $sql = "INSERT INTO black_list(id,user_id,black_user_id,black_rank)VALUES(?,?,?,?)ON DUPLICATE KEY UPDATE id = ?,user_id =?,black_user_id=?,black_rank=?";
+        $sql = "INSERT INTO black_list(user_id,black_user_id,group_id,black_rank)VALUES(?,?,?,?)ON DUPLICATE KEY UPDATE user_id =?,black_user_id=?,group_id=?,black_rank=?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("iiiiiiii",$id,$logined_id,$user_id,$black_rank,$id,$logined_id,$user_id,$black_rank);
+        $stmt->bind_param("iiiiiiii",$user_id,$black_user_id,$group_id,$black_rank,$user_id,$black_user_id,$group_id,$black_rank);
         if($stmt->execute()){
             $success_flag = true;
         }
