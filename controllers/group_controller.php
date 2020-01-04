@@ -65,7 +65,7 @@ if($request_method === 'POST'&&$post_no ===1){
 
 
 if($request_method === 'POST'&&$post_no ===2){
-    $stmt = $conn->prepare("SELECT * FROM black_list b LEFT JOIN user u ON b.black_user_id = u.user_id WHERE b.user_id = ? AND b.group_id = ?");
+    $stmt = $conn->prepare("SELECT * FROM black_list b LEFT JOIN user u ON b.black_user_id = u.user_id WHERE b.user_id = ? AND b.group_id = ? AND u.authority = 0");
     $stmt->bind_param("ii", $user_id,$group_id);
     $stmt->execute();
     $result = $stmt->get_result();

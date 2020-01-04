@@ -1,37 +1,13 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title></title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="robots" content="all,follow">
-    <!-- Bootstrap CSS-->
-    <link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
-    <!-- Font Awesome CSS-->
-    <link rel="stylesheet" href="vendor/font-awesome/css/font-awesome.min.css">
-    <!-- Fontastic Custom icon font-->
-    <link rel="stylesheet" href="css/fontastic.css">
-    <!-- Google fonts - Poppins -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,400,700">
-    <!-- theme stylesheet-->
-    <link rel="stylesheet" href="css/style.default.css" id="theme-stylesheet">
-    <!-- Custom stylesheet - for your changes-->
-    <link rel="stylesheet" href="css/custom.css">
-    <!-- Favicon-->
-    <link rel="shortcut icon" href="img/favicon.ico">
-    <!-- Tweaks for older IEs--><!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-        <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
-  </head>
+  <?php require "./templates/head.php" ?>
   <body>
     <div class="page">
       <!-- Main Navbar-->
-      <?php require "./header.php" ?>
+      <?php require "./templates/header.php" ?>
       <div class="page-content d-flex align-items-stretch"> 
         <!-- Side Navbar -->
-        <?php require "./nav.php" ?>
+        <?php require "./templates/nav.php" ?>
         <div class="content-inner">
           <!-- Page Header-->
           <header class="page-header">
@@ -51,7 +27,7 @@
             <div class="container-fluid">
               <div class="row">
                 <!-- Basic Form-->
-                <div class="col-lg-6">
+                <div class="col-lg-12">
                   <div class="card">
                     <div class="card-close">
                       <div class="dropdown">
@@ -59,22 +35,40 @@
                         <div aria-labelledby="closeCard1" class="dropdown-menu dropdown-menu-right has-shadow"><a href="#" class="dropdown-item remove"> <i class="fa fa-times"></i>Close</a><a href="#" class="dropdown-item edit"> <i class="fa fa-gear"></i>Edit</a></div>
                       </div>
                     </div>
-                    <div class="card-header d-flex align-items-center">
-                      <h3 class="h4">Basic Form</h3>
-                    </div>
                     <div class="card-body">
-                      <p>Lorem ipsum dolor sit amet consectetur.</p>
-                      <form>
+                      <form method="post" action="./shift_element.php">
+                      <label class="form-control-label">グループ</label>
                         <div class="form-group">
-                          <label class="form-control-label">Email</label>
-                          <input type="email" placeholder="Email Address" class="form-control">
+                          <select class="form-control mb-3" name="group_id">
+                          <?php foreach ($group_data as $val): ?>
+                            <option value="<?php echo $val['group_id']; ?>">
+                                <?php echo $val['name']; ?>
+                            </option>
+                          <?php endforeach; ?>
+                          </select>
+                        </div>
+                        <div class="form-group">
+                          <label class="form-control-label">シフト名</label>
+                          <input type="text" placeholder="シフト名" class="form-control" id="shift_name" name="shift_name">
                         </div>
                         <div class="form-group">       
-                          <label class="form-control-label">Password</label>
-                          <input type="password" placeholder="Password" class="form-control">
+                          <label class="form-control-label">シフト年月</label>
+                          <input type="date" placeholder="シフト年月" class="form-control" id="shift_month" name="shift_month">
                         </div>
                         <div class="form-group">       
-                          <input type="submit" value="Signin" class="btn btn-primary">
+                          <label class="form-control-label">提出期限</label>
+                          <input type="date" placeholder="提出期限" class="form-control" id="submit_time" name="submit_time">
+                        </div>
+                        <div class="form-group">       
+                          <label class="form-control-label">修正期限</label>
+                          <input type="date" placeholder="修正期限" class="form-control" id="modify_time" name="modify_time">
+                        </div>
+                        <div class="form-group">       
+                          <label class="form-control-label">発表日</label>
+                          <input type="date" placeholder="発表日" class="form-control" id="release_time" name="release_time">
+                        </div>
+                        <div class="form-group">       
+                          <input type="submit" value="送信" class="btn btn-primary" id="send" name="send">
                         </div>
                       </form>
                     </div>
@@ -329,6 +323,10 @@
                               <option>option 2</option>
                               <option>option 3</option>
                               <option>option 4</option>
+                              <option>option 4</option>
+                              <option>option 4</option>
+                              <option>option 4</option>
+                              <option>option 4</option>
                             </select>
                           </div>
                         </div>
@@ -520,20 +518,6 @@
               </div>
             </div>
           </section>
-          <!-- Page Footer-->
-          <footer class="main-footer">
-            <div class="container-fluid">
-              <div class="row">
-                <div class="col-sm-6">
-                  <p>Copyright &copy; 2019.Company name All rights reserved.More Templates <a href="http://www.cssmoban.com/" target="_blank" title="模板之家">模板之家</a> - Collect from <a href="http://www.cssmoban.com/" title="网页模板" target="_blank">网页模板</a></p>
-                </div>
-                <div class="col-sm-6 text-right">
-                  <p></p>
-                  <!-- Please do not remove the backlink to us unless you support further theme's development at https://bootstrapious.com/donate. It is part of the license conditions. Thank you for understanding :)-->
-                </div>
-              </div>
-            </div>
-          </footer>
         </div>
       </div>
     </div>
