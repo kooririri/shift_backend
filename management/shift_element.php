@@ -14,7 +14,6 @@ if(!$_POST){
         'release_time' => $_POST['release_time'],
         'group_id' => $_POST['group_id'],
     ];
-    var_dump($_POST);
     insert_shift_element($conn,$input_data);
     require "./templates/shift_element_output.php";
 }

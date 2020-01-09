@@ -24,11 +24,11 @@ $conn = new mysqli(DB_SERVER_NAME, USERNAME, PASSWORD, DB_NAME);
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
-$shift_type_id = $request_data;
+$group_id = $request_data;
 if($request_method === 'POST'){
-    $sql = "SELECT * FROM shift_element se LEFT JOIN shift_type st ON se.shift_id = st.shift_id WHERE se.shift_id = ?";
+    $sql = "SELECT * FROM shift_element se LEFT JOIN shift_type st ON se.group_id = st.group_id WHERE se.group_id = ? GROUP BY st.type_id";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $shift_type_id);
+    $stmt->bind_param("i", $group_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $response_data = [];

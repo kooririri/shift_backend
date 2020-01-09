@@ -11,10 +11,6 @@ function LOGIC_get_member_by_group($conn,$group_id)
     $result = $stmt->get_result();
     $stmt->close();
 
-    if ($result->num_rows === 0) {
-        echo "データなし";
-    }
-
     $data = [];
     while ($row = $result->fetch_assoc()) {
         $data[] = [
@@ -38,9 +34,6 @@ function LOGIC_make_shift($conn,$group_id,$shift_month)
     $result = $stmt->get_result();
     $stmt->close();
     
-    if ($result->num_rows === 0) {
-        echo "データなし";
-    }
 
     $shift_data = [];
     while ($row = $result->fetch_assoc()) {
@@ -80,8 +73,8 @@ function LOGIC_make_shift($conn,$group_id,$shift_month)
             $shift_id = $each_detail['shift_id'];
 
             $temp_request = get_shift_request($conn,$shift_id,$temp_date,$type_id,$rank,1);
-            var_dump($temp_date);
-            var_dump($temp_request);
+            // var_dump($temp_date);
+            // var_dump($temp_request);
             $count = count($temp_request);
             if($count <= $number){
                 foreach($temp_request as $temp_val){
@@ -97,11 +90,7 @@ function LOGIC_make_shift($conn,$group_id,$shift_month)
                 }
             }
         }
-
     }
-    
-
-    return 0;
 }
 
 
@@ -114,9 +103,6 @@ function get_shift_detail($conn,$shift_id,$date){
      $result = $stmt->get_result();
      $stmt->close();
  
-     if ($result->num_rows === 0) {
-         echo "データなし";
-     }
  
      $shift_detail_data = [];
      while ($row = $result->fetch_assoc()) {

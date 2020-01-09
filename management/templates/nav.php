@@ -8,16 +8,19 @@
               <p>おはよう</p>
             </div>
           </div>
-          <!-- Sidebar Navidation Menus--><span class="heading">Main</span>
+          <!-- Sidebar Navidation Menus-->
+          <span class="heading">Main</span>
           <ul class="list-unstyled" id="test">
                     <li class="active"><a href="index.php"> <i class="icon-home"></i>Home </a></li>
-                    <li><a href="tables.html"> <i class="icon-grid"></i>Tables </a></li>
+                    <li><a href="shift_creation.php"> <i class="icon-grid"></i>シフト確認と調整 </a></li>
                     <li><a href="charts.php"> <i class="fa fa-bar-chart"></i>Charts </a></li>
                     <li><a href="shift_element.php"> <i class="icon-padnote"></i>シフト作成 </a></li>
-                    <li><a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-interface-windows"></i>Example dropdown </a>
+                    <li><a href="shift_type.php"> <i class="icon-padnote"></i>シフトタイプ作成 </a></li>
+                    <li><a href="shift_group.php"> <i class="icon-padnote"></i>グループ作成 </a></li>
+                    <li><a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-interface-windows"></i>グループ </a>
                       <ul id="exampledropdownDropdown" class="collapse list-unstyled ">
-                        <li><a href="#">Page</a></li>
-                        <li><a href="#">Page</a></li>
+                        <li><a href="shift_group.php">グループ作成</a></li>
+                        <li><a href="group_member.php">グループメンバ追加</a></li>
                         <li><a href="#">Page</a></li>
                       </ul>
                     </li>

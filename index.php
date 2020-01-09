@@ -98,5 +98,5 @@ if($request_method === 'GET'){
     echo json_encode(array('list' => $response_data));
 }elseif($request_method === 'POST'){
     $shift_request_data = $request_data['submitJson'];
-    var_dump($shift_request_data);
+    // var_dump($shift_request_data);
 }
