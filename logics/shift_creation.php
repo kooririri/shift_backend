@@ -291,3 +291,27 @@ function get_shift_for_eachday($conn,$shift_id,$user_id,$date)
 
     return $data;
 }
+
+function get_shift_element_by_shift_id($conn,$shift_id){
+    $sql = "SELECT * FROM shift_element WHERE shift_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i",$shift_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+  
+
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data = [
+            'group_id' => $row['group_id'],
+            'shift_name' => $row['shift_name'],
+            'shift_month' => $row['shift_month'],
+            'submit_time' => $row['submit_time'],
+            'modify_time' => $row['modify_time'],
+            'release_time' => $row['release_time'],
+            'modify_version' => $row['modify_version'],
+        ];
+    }
+    return $data;
+}
