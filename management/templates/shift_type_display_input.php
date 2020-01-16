@@ -12,14 +12,14 @@
           <!-- Page Header-->
           <header class="page-header">
             <div class="container-fluid">
-              <h2 class="no-margin-bottom">シフトタイプ作成</h2>
+              <h2 class="no-margin-bottom">シフトタイプ確認</h2>
             </div>
           </header>
           <!-- Breadcrumb-->
           <div class="breadcrumb-holder container-fluid">
             <ul class="breadcrumb">
               <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-              <li class="breadcrumb-item active">シフトタイプ作成            </li>
+              <li class="breadcrumb-item active">シフトタイプ確認            </li>
             </ul>
           </div>
           <!-- Forms Section-->

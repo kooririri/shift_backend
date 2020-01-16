@@ -62,27 +62,12 @@
                             </div>
                           </div>
                         </form>    
-                        <form class="form-horizontal">
-                            <div class="card-header d-flex align-items-center">
-                            <h3 class="h4" style="margin:auto"><?php echo "全体"; ?></h3>
-                            </div>
-                            <div class="line"></div>
-                            <?php foreach ($type_datas as $type_data): ?>
-                            <div class="form-group row">
-                            <label class="col-sm-3 form-control-label"><?php echo $type_data['type_name'] ?></label>
-                            <!-- <div class="col-sm-9">
-                                <input type="text" class="form-control"><small class="help-block-none">A block of help text that breaks onto a new line and may extend beyond one line.</small>
-                            </div> -->
-                            </div>
-                            <div class="line"></div>
-                            <?php endforeach; ?>
-                        </form>  
                         <div class="table-responsive">
                         <table class = "table">
                             <thead>
                             <tr>
-                                <th colspan="5"><?php echo $year."年".$month."月"; ?></th>
-                                <th colspan="2">
+                                <th colspan="5" style="text-align:center"><h4><?php echo $year."年".$month."月"; ?></h4></th>
+                                <th colspan="2" style="text-align:center">
                                 <button type="button" data-toggle="modal" data-target= "#all_register" class="btn btn-primary">全体人数登録</button>
                                     <div id="all_register" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
                                         <div role="document" class="modal-dialog">

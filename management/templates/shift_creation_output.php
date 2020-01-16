@@ -71,9 +71,14 @@
                             <table class = "table">
                               <thead>
                                 <tr>
-                                  <th></th>
+                                  <th>
+                                    <form action = "./shift_creation.php" method="post">
+                                      <input type = "hidden" name="shift_id" value="<?php echo $shift_id; ?>">
+                                      <input type="submit"  class="btn btn-primary" name="button" value="データクリア">
+                                    </form>
+                                  </th>
                                   <?php foreach ($users as $user): ?>
-                                    <th><?php echo $user['nickname']; ?></th>
+                                    <th><?php echo $user['nickname']."(".$user['rank'].")"; ?></th>
                                   <?php endforeach; ?>
                                 </tr>
                               </thead>
@@ -81,22 +86,175 @@
                                 <?php foreach ($days as $day): ?>
                                   <tr>
                                     <th>
-                                      <?php echo $day; ?>
+                                      <form method="post" action="shift_adjustion.php">
+                                        <?php  
+                                          $staff_requirement = get_staff_number_requirement_by_date($conn,$shift_id,$day);
+                                          $staff_number = get_staff_number_by_date($conn,$shift_id,$day);
+                                        ?>
+                                        <input class="btn btn-light" type="submit" name = "button" value="<?php echo $day." (".$staff_requirement['total_number']."/".$staff_number['count'].")"; ?>">
+                                      </form>
+                                      
                                     </th>
                                     <?php foreach ($users as $user): ?>
-                                    
                                       <?php 
                                         $shift_for_eachday = get_shift_for_eachday($conn,$shift_id,$user['user_id'],$day);
+                                        $abled_datas = find_abled_staff_by_date($conn,$user['user_id'],$day,-1);
                                         if(isset($shift_for_eachday['type_name'])){
                                           ?>
                                           <th style = "background-color:<?php echo $shift_for_eachday['type_color']; ?>">
-                                            <?php echo $shift_for_eachday['type_name']; ?>
+                                            
+                                            <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$shift_for_eachday['id']; ?>" class="btn btn-link"><?php echo $shift_for_eachday['type_name']; ?></button>
+                                            <div id="<?php echo "pop".$shift_for_eachday['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                                                <div role="document" class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                    <h4 id="exampleModalLabel" class="modal-title">シフト調整</h4>
+                                                    <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form action="./shift_creation.php" method="post">
+                                                        <label class="form-control-label">タイプ</label>
+                                                        <select class="form-control mb-3" name="type_id" id = "type_id">
+                                                        <?php foreach ($shift_types as $shift_type): ?>
+                                                          <option value="<?php echo $shift_type['type_id']; ?>">
+                                                              <?php echo $shift_type['type_name']; ?>
+                                                          </option>
+                                                        <?php endforeach; ?>
+                                                        <option value="-1">
+                                                          休み
+                                                        </option>
+                                                        </select>
+                                                        <table class = "table">
+                                                          <thead>
+                                                            <tr>
+                                                              <?php foreach ($shift_types as $shift_dt): ?>
+                                                                <th style = "background-color:<?php echo $shift_dt['type_color']; ?>"><?php echo $shift_dt['type_name']; ?></th>
+                                                              <?php endforeach; ?>
+                                                            </tr>
+                                                          </thead>
+                                                          <tbody>
+                                                            <tr>
+                                                            <?php 
+                                                            $a = 0;
+                                                            foreach ($shift_types as $shift_dt){
+                                                              
+                                                              $shift_type_id = $shift_dt['type_id'];
+                                                              foreach($abled_datas as $abled_dt){
+                                                                // var_dump($abled_dt['type_id']);
+                                                                if($abled_dt['type_id'] == $shift_type_id){
+                                                                  $a = 1;
+                                                                }
+                                                              }
+                                                              if($a == 1){
+                                                                ?>
+                                                                <td>〇</td>
+                                                                <?php
+                                                              }else{
+                                                                ?>
+                                                                <td>×</td>
+                                                                <?php
+                                                              }
+                                                            } 
+                                                            ?>
+                                                            </tr>
+                                                          </tbody>
+                                                        </table>
+                                                        <input type = "hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
+                                                        <input type = "hidden" name="creation_id" value="<?php echo $shift_for_eachday['id']; ?>">
+                                                        <input type = "hidden" name="shift_id" value="<?php echo $shift_id; ?>">
+                                                        <input type = "hidden" name="date" value="<?php echo $day; ?>">
+                                                        <input type = "hidden" name="flg" value="yes">
+                                                        <div class="modal-footer">
+                                                            <button type="button" data-dismiss="modal" class="btn btn-secondary">Close</button>
+                                                            <input type="submit" class="btn btn-primary" name="button" value="調整確定">
+                                                        </div>
+                                                        </form>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                           </th>
                                           <?php
                                         }else{
                                           ?>
-                                          <th>
-                                            <?php echo "休み"; ?>
+                                          <th> 
+                                            <?php 
+                                              $checked_data = check_cancel_by_black_list($conn,$shift_id,$day);
+                                              $abled_data = find_abled_staff_by_date($conn,$user['user_id'],$day,-1);
+                                            ?>
+                                            <?php if(count($checked_data)>0): ?>                       
+                                            <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$day.$user['user_id']; ?>" class="btn btn-link"><?php echo "Cancelled"; ?></button>
+                                            <?php elseif(count($abled_data)>0): ?>
+                                            <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$day.$user['user_id']; ?>" class="btn btn-link"><?php echo "可能"; ?></button>
+                                            <?php else: ?>
+                                            <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$day.$user['user_id']; ?>" class="btn btn-link"><?php echo "休み"; ?></button>
+                                            <?php endif; ?>
+                                            <div id="<?php echo "pop".$day.$user['user_id']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
+                                                <div role="document" class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                    <h4 id="exampleModalLabel" class="modal-title">シフト調整</h4>
+                                                    <button type="button" data-dismiss="modal" aria-label="Close" class="close"><span aria-hidden="true">×</span></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form action="./shift_creation.php" method="post">
+                                                        <label class="form-control-label">タイプ</label>
+                                                        <select class="form-control mb-3" name="type_id" id = "type_id">
+                                                        <?php foreach ($shift_types as $shift_type): ?>
+                                                          <option value="<?php echo $shift_type['type_id']; ?>">
+                                                              <?php echo $shift_type['type_name']; ?>
+                                                          </option>
+                                                        <?php endforeach; ?>
+                                                        </select>
+                                                        <table class = "table">
+                                                          <thead>
+                                                            <tr>
+                                                              <?php foreach ($shift_types as $shift_dt): ?>
+                                                                <th style = "background-color:<?php echo $shift_dt['type_color']; ?>"><?php echo $shift_dt['type_name']; ?></th>
+                                                              <?php endforeach; ?>
+                                                            </tr>
+                                                          </thead>
+                                                          <tbody>
+                                                            <tr>
+                                                            <?php 
+                                                            
+                                                            foreach ($shift_types as $shift_dt){
+                                                              $a = 0;
+                                                              $shift_type_id = $shift_dt['type_id'];
+                                                              foreach($abled_data as $abled_dt){
+                                                                // var_dump($abled_dt['type_id']);
+                                                                if($abled_dt['type_id'] == $shift_type_id){
+                                                                  $a = 1;
+                                                                }
+                                                              }
+                                                              if($a == 1){
+                                                                ?>
+                                                                <td>〇</td>
+                                                                <?php
+                                                              }else{
+                                                                ?>
+                                                                <td>×</td>
+                                                                <?php
+                                                              }
+                                                            } 
+                                                            ?>
+                                                            </tr>
+                                                          </tbody>
+                                                        </table>
+                                                          <input type = "hidden" name="user_id" value="<?php echo $user['user_id']; ?>">
+                                                          <input type = "hidden" name="shift_id" value="<?php echo $shift_id; ?>">
+                                                          <input type = "hidden" name="date" value="<?php echo $day; ?>">
+                                                          <input type = "hidden" name="flg" value="no">
+                                                          <div class="modal-footer">
+                                                              <button type="button" data-dismiss="modal" class="btn btn-secondary">Close</button>
+                                                              <input type="submit" class="btn btn-primary" name="button" value="調整確定">
+                                                          </div>
+                                                        </form>
+                                                    </div>
+                                                    
+                                                    </div>
+                                                </div>
+                                            </div>
                                           </th>
                                           <?php
                                         }
