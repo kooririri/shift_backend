@@ -7,7 +7,32 @@
       <?php require "./templates/header.php" ?>
       <div class="page-content d-flex align-items-stretch"> 
         <!-- Side Navbar -->
-        <?php require "./templates/nav.php" ?>
+        <nav class="side-navbar">
+        <!-- Sidebar Header-->
+          <div class="sidebar-header d-flex align-items-center">
+            <div class="avatar"><img src="img/avatar-1.jpg" alt="..." class="img-fluid rounded-circle"></div>
+            <div class="title">
+              <h1 class="h4">管理者様</h1>
+              <p>おはよう</p>
+            </div>
+          </div>
+          <!-- Sidebar Navidation Menus-->
+          <span class="heading">Main</span>
+          <ul class="list-unstyled" id="test">
+            <li><a href="index.php"> <i class="icon-home"></i>Home </a></li>
+            <li class="active"><a href="shift_creation.php"> <i class="icon-grid"></i>シフト確認と調整 </a></li>
+            <li><a href="shift_detail.php"> <i class="fa fa-bar-chart"></i>毎日必要人数登録 </a></li>
+            <li><a href="shift_element.php"> <i class="icon-interface-windows"></i>シフト作成 </a></li>
+            <li><a href="shift_type.php"> <i class="icon-padnote"></i>シフトタイプ作成 </a></li>
+            <li><a href="shift_type_display.php"> <i class="icon-page"></i>シフトタイプ確認 </a></li>
+            <li><a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-user"></i>グループ </a>
+              <ul id="exampledropdownDropdown" class="collapse list-unstyled ">
+                <li><a href="shift_group.php">グループ作成</a></li>
+                <li><a href="group_member.php">グループメンバ追加</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
         <div class="content-inner">
           <!-- Page Header-->
           <header class="page-header">
@@ -63,13 +88,28 @@
                         </form>                       
                       </div>
                       <div class="card-body">
-                        <div class="card-header d-flex align-items-center">
-                          <h3 class="h4"><?php echo $shift_each_data['shift_name']; ?></h3>
-                        </div>
+                          <div class="card-header d-flex align-items-center"　>
+                            <h3 class="h4"><?php echo $shift_each_data['shift_name']; ?></h3>
+                          </div>
                         <div class="table-responsive">
                           <?php if($flag === 1): ?>
                             <table class = "table">
                               <thead>
+                                <tr>
+                                  <th></th>
+                                  <th colspan="<?php echo count($users)/2; ?>">
+                                    <form action = "./shift_creation.php" method="post" >
+                                      <input type = "hidden" name="shift_id" value="<?php echo $shift_id; ?>">
+                                      <input type="submit"  class="btn btn-light" name="button" value="一時確定">
+                                    </form>
+                                  </th>
+                                  <th colspan="<?php echo count($users)/2; ?>">
+                                    <form action = "./shift_creation.php" method="post" >
+                                      <input type = "hidden" name="shift_id" value="<?php echo $shift_id; ?>">
+                                      <input type="submit"  class="btn btn-light" name="button" value="一時確定">
+                                    </form>
+                                  </th>
+                                </tr>
                                 <tr>
                                   <th>
                                     <form action = "./shift_creation.php" method="post">
@@ -86,13 +126,13 @@
                                 <?php foreach ($days as $day): ?>
                                   <tr>
                                     <th>
-                                      <form method="post" action="shift_adjustion.php">
+                                      <!-- <form method="post" action="shift_adjustion.php"> -->
                                         <?php  
                                           $staff_requirement = get_staff_number_requirement_by_date($conn,$shift_id,$day);
                                           $staff_number = get_staff_number_by_date($conn,$shift_id,$day);
                                         ?>
                                         <input class="btn btn-light" type="submit" name = "button" value="<?php echo $day." (".$staff_requirement['total_number']."/".$staff_number['count'].")"; ?>">
-                                      </form>
+                                      <!-- </form> -->
                                       
                                     </th>
                                     <?php foreach ($users as $user): ?>
@@ -101,9 +141,14 @@
                                         $abled_datas = find_abled_staff_by_date($conn,$user['user_id'],$day,-1);
                                         if(isset($shift_for_eachday['type_name'])){
                                           ?>
-                                          <th style = "background-color:<?php echo $shift_for_eachday['type_color']; ?>">
-                                            
-                                            <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$shift_for_eachday['id']; ?>" class="btn btn-link"><?php echo $shift_for_eachday['type_name']; ?></button>
+                                          
+                                            <?php if($shift_for_eachday['selected_flag'] == 9): ?>
+                                              <th style = "background-color:#EA0000">
+                                              <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$shift_for_eachday['id']; ?>" class="btn btn-link"><?php echo '取消済'; ?></button>
+                                            <?php elseif($shift_for_eachday['selected_flag'] == 1): ?>
+                                              <th style = "background-color:<?php echo $shift_for_eachday['type_color']; ?>">
+                                              <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$shift_for_eachday['id']; ?>" class="btn btn-link"><?php echo $shift_for_eachday['type_name']; ?></button>
+                                            <?php endif; ?>
                                             <div id="<?php echo "pop".$shift_for_eachday['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
                                                 <div role="document" class="modal-dialog">
                                                 <div class="modal-content">

@@ -7,19 +7,44 @@
       <?php require "./templates/header.php" ?>
       <div class="page-content d-flex align-items-stretch"> 
         <!-- Side Navbar -->
-        <?php require "./templates/nav.php" ?>
+        <nav class="side-navbar">
+        <!-- Sidebar Header-->
+          <div class="sidebar-header d-flex align-items-center">
+            <div class="avatar"><img src="img/avatar-1.jpg" alt="..." class="img-fluid rounded-circle"></div>
+            <div class="title">
+              <h1 class="h4">管理者様</h1>
+              <p>おはよう</p>
+            </div>
+          </div>
+          <!-- Sidebar Navidation Menus-->
+          <span class="heading">Main</span>
+          <ul class="list-unstyled" id="test">
+            <li><a href="index.php"> <i class="icon-home"></i>Home </a></li>
+            <li><a href="shift_creation.php"> <i class="icon-grid"></i>シフト確認と調整 </a></li>
+            <li class="active"><a href="shift_detail.php"> <i class="fa fa-bar-chart"></i>毎日必要人数登録 </a></li>
+            <li><a href="shift_element.php"> <i class="icon-interface-windows"></i>シフト作成 </a></li>
+            <li><a href="shift_type.php"> <i class="icon-padnote"></i>シフトタイプ作成 </a></li>
+            <li><a href="shift_type_display.php"> <i class="icon-page"></i>シフトタイプ確認 </a></li>
+            <li><a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-user"></i>グループ </a>
+              <ul id="exampledropdownDropdown" class="collapse list-unstyled ">
+                <li><a href="shift_group.php">グループ作成</a></li>
+                <li><a href="group_member.php">グループメンバ追加</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
         <div class="content-inner">
           <!-- Page Header-->
           <header class="page-header">
             <div class="container-fluid">
-              <h2 class="no-margin-bottom">シフト確認と調整</h2>
+              <h2 class="no-margin-bottom">毎日必要人数登録</h2>
             </div>
           </header>
           <!-- Breadcrumb-->
           <div class="breadcrumb-holder container-fluid">
             <ul class="breadcrumb">
               <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-              <li class="breadcrumb-item active">シフト確認と調整</li>
+              <li class="breadcrumb-item active">毎日必要人数登録</li>
             </ul>
           </div>
           <!-- Forms Section-->
@@ -30,7 +55,7 @@
                 <div class="col-lg-12">
                   <div class="card">
                   <div class="card-header d-flex align-items-center">
-                        <h3 class="h4">シフト確認</h3> 
+                        <h3 class="h4">毎日必要人数登録</h3> 
                       </div>
                     <div class="card-body">                    
                       <div class="form-group">
@@ -175,35 +200,35 @@
                                                             <div class="form-group row">
                                                                 <label class="col-sm-3 form-control-label">ランク1</label>
                                                             <div class="col-sm-9">
-                                                                <input type="number" min="0" placeholder="人数を入力してください" class="form-control" name="<?php echo $type_data['type_id']."rank1"  ?>" value = 0>
+                                                                <input type="number" min="0" placeholder="人数を入力してください" class="form-control" name="<?php echo $type_data['type_id']."rank1"  ?>" value = <?php if(isset(get_number_of_each_day_and_type($conn,$shift_id,$date,$type_data['type_id'],1)['number'])) echo get_number_of_each_day_and_type($conn,$shift_id,$date,$type_data['type_id'],1)['number']; ?>>
                                                             </div>
                                                         </div>
                                                         <div class="form-group">
                                                             <div class="form-group row">
                                                                 <label class="col-sm-3 form-control-label">ランク2</label>
                                                             <div class="col-sm-9">
-                                                                <input type="number" min="0" placeholder="人数を入力してください" class="form-control" name="<?php echo $type_data['type_id']."rank2"  ?>" value = 0>
+                                                                <input type="number" min="0" placeholder="人数を入力してください" class="form-control" name="<?php echo $type_data['type_id']."rank2"  ?>" value = <?php if(isset(get_number_of_each_day_and_type($conn,$shift_id,$date,$type_data['type_id'],2)['number'])) echo get_number_of_each_day_and_type($conn,$shift_id,$date,$type_data['type_id'],2)['number']; ?>>
                                                             </div>
                                                         </div>
                                                         <div class="form-group">
                                                             <div class="form-group row">
                                                                 <label class="col-sm-3 form-control-label">ランク3</label>
                                                             <div class="col-sm-9">
-                                                                <input type="number" min="0" placeholder="人数を入力してください" class="form-control" name="<?php echo $type_data['type_id']."rank3"  ?>" value = 0>
+                                                                <input type="number" min="0" placeholder="人数を入力してください" class="form-control" name="<?php echo $type_data['type_id']."rank3"  ?>" value = <?php if(isset(get_number_of_each_day_and_type($conn,$shift_id,$date,$type_data['type_id'],3)['number'])) echo get_number_of_each_day_and_type($conn,$shift_id,$date,$type_data['type_id'],3)['number']; ?>>
                                                             </div>
                                                         </div>
                                                         <div class="form-group">
                                                             <div class="form-group row">
                                                                 <label class="col-sm-3 form-control-label">ランク4</label>
                                                             <div class="col-sm-9">
-                                                                <input type="number" min="0" placeholder="人数を入力してください" class="form-control" name="<?php echo $type_data['type_id']."rank4"  ?>" value = 0>
+                                                                <input type="number" min="0" placeholder="人数を入力してください" class="form-control" name="<?php echo $type_data['type_id']."rank4"  ?>" value = <?php if(isset(get_number_of_each_day_and_type($conn,$shift_id,$date,$type_data['type_id'],4)['number'])) echo get_number_of_each_day_and_type($conn,$shift_id,$date,$type_data['type_id'],4)['number']; ?>>
                                                             </div>
                                                         </div>
                                                         <div class="form-group">
                                                             <div class="form-group row">
                                                                 <label class="col-sm-3 form-control-label">ランク5</label>
                                                             <div class="col-sm-9">
-                                                                <input type="number" min="0" placeholder="人数を入力してください" class="form-control" name="<?php echo $type_data['type_id']."rank5"  ?>" value = 0>
+                                                                <input type="number" min="0" placeholder="人数を入力してください" class="form-control" name="<?php echo $type_data['type_id']."rank5"  ?>" value = <?php if(isset(get_number_of_each_day_and_type($conn,$shift_id,$date,$type_data['type_id'],5)['number'])) echo get_number_of_each_day_and_type($conn,$shift_id,$date,$type_data['type_id'],5)['number']; ?>>
                                                             </div>
                                                         </div>
                                                         <div class="line"></div>      
