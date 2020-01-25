@@ -74,35 +74,48 @@ if(!$_POST){
         foreach($shift_types as $shift_type){
             $total_number += intval($_POST[$shift_type['type_id'].'rank1'])+intval($_POST[$shift_type['type_id'].'rank2'])+intval($_POST[$shift_type['type_id'].'rank3'])+intval($_POST[$shift_type['type_id'].'rank4'])+intval($_POST[$shift_type['type_id'].'rank5']);
         }
+        $shift_dates = array();
+        $date = substr($shift_month['shift_month'],0,8);
+        $days = date('t', strtotime($shift_month['shift_month']));
+        for($a = 1;$a<=$days;$a++){
+            $str = $a;
+            if($a < 10){
+                $str = "0".$a;
+            }
+            $temp = $date.$str;
+            $shift_dates[] = $temp;
+        }
         foreach($shift_types as $shift_type){
-            for($i = 1;$i<=5;$i++){
-                $all_input_data = array();
-                $all_input_data = [
-                    'shift_id' => $shift_id,
-                    'date' => $_POST['date'],
-                    'total_number' => $total_number,
-                    'type_id' => $shift_type['type_id'],
-                    'shift_id' => $shift_id,
-                    'rank' => $i,
-                    'number' => $_POST[$shift_type['type_id'].'rank'.$i],
-                ];
-                $check_data = check_shift_detail($conn,$shift_id,$_POST['date'],$shift_type['type_id'],$i);
-                if(isset($check_data['id'])){
-                    $all_input_data =  $all_input_data = [
+            foreach($shift_dates as $date_val){
+                for($i = 1;$i<=5;$i++){
+                    $all_input_data = array();   
+                    $all_input_data = [
                         'shift_id' => $shift_id,
-                        'date' => $_POST['date'],
+                        'date' => $date_val,
                         'total_number' => $total_number,
                         'type_id' => $shift_type['type_id'],
                         'shift_id' => $shift_id,
                         'rank' => $i,
                         'number' => $_POST[$shift_type['type_id'].'rank'.$i],
-                        'id' => $check_data['id'], 
                     ];
-                    update_shift_detail($conn,$all_input_data);           
-                }else{                  
-                    insert_shift_detail($conn,$all_input_data);           
-                }
-            }     
+                    $check_data = check_shift_detail($conn,$shift_id,$date_val,$shift_type['type_id'],$i);
+                    if(isset($check_data['id'])){
+                        $all_input_data =  $all_input_data = [
+                            'shift_id' => $shift_id,
+                            'date' => $date_val,
+                            'total_number' => $total_number,
+                            'type_id' => $shift_type['type_id'],
+                            'shift_id' => $shift_id,
+                            'rank' => $i,
+                            'number' => $_POST[$shift_type['type_id'].'rank'.$i],
+                            'id' => $check_data['id'], 
+                        ];
+                        update_shift_detail($conn,$all_input_data);           
+                    }else{                  
+                        insert_shift_detail($conn,$all_input_data);           
+                    }
+                }     
+            }    
         }
     }
     require "./templates/shift_detail_output.php";

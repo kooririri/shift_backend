@@ -138,3 +138,21 @@ function get_date_by_shift_id($conn,$shift_id){
     }
     return $data;
 }
+
+function get_number_of_each_day_and_type($conn,$shift_id,$date,$type_id,$rank){
+    $sql = "SELECT number FROM shift_detail WHERE shift_id = ? AND date = ? AND type_id = ? AND rank = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("isii",$shift_id,$date,$type_id,$rank);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+  
+
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data = [
+            'number' => $row['number'],
+        ];
+    }
+    return $data;
+}

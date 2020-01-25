@@ -97,18 +97,54 @@ function LOGIC_make_shift($conn,$shift_id)
             if($count <= $number){
                 foreach($temp_request as $temp_val){
                     insert_shift_creation($conn,$temp_val['shift_id'],$temp_val['user_id'],$temp_val['type_id'],$temp_val['date']);
+                    change_selected_flag_when_arranged($conn,$temp_val['id'],$temp_val['user_id']);
                 }              
             }elseif($count > $number){
-                $line = $count;
+                $line = $number;
+                $countdown = $count;
                 while($line > 0){
-                    $random_number = rand(0,$line-1);
+                    $random_number = rand(0,$countdown-1);
                     insert_shift_creation($conn,$temp_request[$random_number]['shift_id'],$temp_request[$random_number]['user_id'],$temp_request[$random_number]['type_id'],$temp_request[$random_number]['date']);
+                    change_selected_flag_when_arranged($conn,$temp_request[$random_number]['id'],$temp_request[$random_number]['user_id']);
                     array_splice($temp_request,$random_number,1);
                     $line --;
+                    $countdown--;
                 }
             }
         }
     }
+    $users = LOGIC_get_member_by_shift_id($conn,$shift_id);
+    $days = get_days_by_shift_month($conn,$shift_id);
+    foreach ($users as $user){
+        foreach($days as $day){
+            $sql = "SELECT * FROM shift_creation sc LEFT JOIN user u ON sc.user_id = u.user_id LEFT JOIN shift_type st ON sc.type_id = st.type_id WHERE sc.shift_id = ? AND sc.user_id = ? AND sc.date = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("iis", $shift_id,$user['user_id'],$day);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $stmt->close();
+            $data = [];
+            while ($row = $result->fetch_assoc()) {
+                $data = [
+                    'id' => $row['id'],
+                    'user_id' => $row['user_id'],
+                    'nickname' => $row['nickname'],
+                    'rank' => $row['evaluation'],
+                    'type_id' => $row['type_id'],
+                    'type_name' => $row['type_name'],
+                    'type_color' => $row['type_color'],
+                ];
+            }
+            if(count($data) >0){
+                $stmt = $conn->prepare("UPDATE shift_creation SET selected_flag = 1 WHERE id =?");
+                $stmt->bind_param("i", $data['id']);
+                $stmt->execute();
+            
+                $stmt->close();
+            }
+        }
+    }
+   
 }
 
 
@@ -149,6 +185,7 @@ function get_shift_request($conn,$shift_id,$temp_date,$type_id,$rank,$selected_f
     $data = [];
     while ($row = $result->fetch_assoc()) {
         $data[] = [
+            'id' => $row['id'],
             'user_id' => $row['user_id'],
             'date' => $row['date'],
             'shift_id' => $row['shift_id'],
@@ -234,7 +271,7 @@ function LOGIC_get_member_by_shift_id($conn,$shift_id)
         $data[] = [
             'user_id' => $row['user_id'],
             'nickname' => $row['nickname'],
-            'evaluation' => $row['evaluation'],
+            'rank' => $row['evaluation'],
         ];
     }
     return $data;
@@ -271,7 +308,7 @@ function get_days_by_shift_month($conn,$shift_id){
 
 function get_shift_for_eachday($conn,$shift_id,$user_id,$date)
 {
-    $sql = "SELECT * FROM shift_creation sc LEFT JOIN user u ON sc.user_id = u.user_id LEFT JOIN shift_type st ON sc.type_id = st.type_id WHERE sc.shift_id = ? AND sc.user_id = ? AND sc.date = ?";
+    $sql = "SELECT * FROM shift_creation sc LEFT JOIN user u ON sc.user_id = u.user_id LEFT JOIN shift_type st ON sc.type_id = st.type_id WHERE sc.shift_id = ? AND sc.user_id = ? AND sc.date = ? AND (selected_flag = 1 OR selected_flag = 9)";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("iis", $shift_id,$user_id,$date);
     $stmt->execute();
@@ -280,12 +317,14 @@ function get_shift_for_eachday($conn,$shift_id,$user_id,$date)
     $data = [];
     while ($row = $result->fetch_assoc()) {
         $data = [
+            'id' => $row['id'],
             'user_id' => $row['user_id'],
             'nickname' => $row['nickname'],
             'rank' => $row['evaluation'],
             'type_id' => $row['type_id'],
             'type_name' => $row['type_name'],
             'type_color' => $row['type_color'],
+            'selected_flag' => $row['selected_flag'],
         ];
     }
 
@@ -314,4 +353,205 @@ function get_shift_element_by_shift_id($conn,$shift_id){
         ];
     }
     return $data;
+}
+
+//将被排上班的希望的selected_flag变成9
+function change_selected_flag_when_arranged($conn,$id,$user_id){
+    $stmt = $conn->prepare("UPDATE shift_request SET selected_flag = 9 WHERE id =? AND user_id =?");
+    $stmt->bind_param("ii", $id,$user_id);
+    $stmt->execute();
+
+    $stmt->close();
+}
+
+//获取当天上班人数
+function get_staff_number_by_date($conn,$shift_id,$date){
+    $sql = "SELECT COUNT(user_id) AS count FROM shift_creation WHERE shift_id = ? AND date = ? AND selected_flag = 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("is",$shift_id,$date);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+  
+
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data = [
+            'count' => $row['count'],
+        ];
+    }
+    return $data;
+}
+
+//获取当天需要人数
+function get_staff_number_requirement_by_date($conn,$shift_id,$date){
+    $sql = "SELECT total_number FROM shift_detail WHERE shift_id = ? AND date = ? limit 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("is",$shift_id,$date);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+  
+
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data = [
+            'total_number' => $row['total_number'],
+        ];
+    }
+    return $data;
+}
+
+//判断是不是因为讨厌的人而取消shift
+function check_cancel_by_black_list($conn,$shift_id,$date){
+    $sql = "SELECT * FROM shift_request WHERE shift_id = ? AND date = ? AND selected_flag = 2";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("is",$shift_id,$date);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+  
+
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[] = [
+            'id' => $row['id'],
+            'user_id' => $row['user_id'],
+            'date' => $row['date'],
+            'shift_id' => $row['shift_id'],
+            'type_id' => $row['type_id'],
+            'selected_flag' => $row['selected_flag'],
+        ];
+    }
+    return $data;
+}
+
+function get_all_shift_type($conn,$group_id){
+    $sql = "SELECT * FROM shift_type WHERE group_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i",$group_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+  
+
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[] = [
+            'type_id' => $row['type_id'],
+            'group_id' => $row['group_id'],
+            'begin_time' => $row['begin_time'],
+            'end_time' => $row['end_time'],
+            'type_name' => $row['type_name'],
+            'type_color' => $row['type_color'],
+            'comment' => $row['comment'],
+            'version' => $row['version'],
+        ];
+    }
+    return $data;
+}
+
+function find_abled_staff_by_date($conn,$user_id,$date,$selected_flag){
+    if($selected_flag = -1){
+        $sql = "SELECT * FROM shift_request sr LEFT JOIN shift_type st ON sr.type_id = st.type_id WHERE user_id = ? AND date = ? AND selected_flag != 0 AND selected_flag != 2";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("is",$user_id,$date);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->close();
+    }else{
+        $sql = "SELECT * FROM shift_request sr LEFT JOIN shift_type st ON sr.type_id = st.type_id WHERE user_id = ? AND date = ? AND selected_flag = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("isi",$user_id,$date,$selected_flag);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->close();
+    }
+   
+  
+
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[] = [
+            'user_id' => $row['user_id'],
+            'date' => $row['date'],
+            'shift_id' => $row['shift_id'],
+            'type_id' => $row['type_id'],
+            'selected_flag' => $row['selected_flag'],
+            'type_name' => $row['type_name'],
+            'type_color' => $row['type_color'],
+        ];
+    }
+    return $data;
+}
+
+function change_shift_creation_by_id($conn,$creation_id,$type_id){
+    if($type_id == "-1"){
+        $stmt = $conn->prepare("DELETE FROM shift_creation WHERE id =?");
+        $stmt->bind_param("i",$creation_id);
+        $stmt->execute();
+        $stmt->close();
+    }else{
+        $stmt = $conn->prepare("UPDATE shift_creation SET type_id = ? WHERE id =?");
+        $stmt->bind_param("ii", $type_id,$creation_id);
+        $stmt->execute(); 
+        $stmt->close();
+    }
+}
+
+function change_shift_creation_from_none($conn,$shift_id,$user_id,$type_id,$date){
+    $sql = "SELECT * FROM shift_creation WHERE shift_id = ? AND user_id = ? AND type_id = ? AND date= ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iiis",$shift_id,$user_id,$type_id,$date);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data = [
+            'id' => $row['id'],
+        ];
+    }
+   
+    if(isset($data['id'])){
+        $stmt = $conn->prepare("UPDATE shift_creation SET selected_flag = 1 WHERE id =?");
+        $stmt->bind_param("i", $data['id']);
+        $stmt->execute(); 
+        $stmt->close();
+    }else{
+        
+        $stmt = $conn->prepare("INSERT INTO shift_creation (shift_id,user_id,type_id,date,selected_flag) VALUES (?,?,?,?,1)");
+        $stmt->bind_param("iiis", $shift_id, $user_id, $type_id, $date);
+        $stmt->execute(); 
+        $stmt->close();
+    }
+}
+
+function data_clear($conn,$shift_id){
+    $stmt = $conn->prepare("DELETE FROM shift_creation WHERE shift_id = ?");
+    $stmt->bind_param("i", $shift_id);
+    $stmt->execute();
+    $stmt->close();
+
+    $stmt = $conn->prepare("UPDATE shift_request SET selected_flag = 1 WHERE (selected_flag = 9 OR selected_flag =8) AND shift_id = ?");
+    $stmt->bind_param("i", $shift_id);
+    $stmt->execute(); 
+    $stmt->close();
+
+    $stmt = $conn->prepare("UPDATE shift_request SET kaburu_flag = 0 WHERE selected_flag = 1 AND shift_id = ?");
+    $stmt->bind_param("i", $shift_id);
+    $stmt->execute(); 
+    $stmt->close();
+
+    $stmt = $conn->prepare("UPDATE shift_element SET is_finished = 0 WHERE shift_id = ?");
+    $stmt->bind_param("i", $shift_id);
+    $stmt->execute(); 
+    $stmt->close();
+}
+
+function shift_submit($conn,$shift_id){
+    $stmt = $conn->prepare("UPDATE shift_element SET is_finished = 1 WHERE shift_id = ?");
+    $stmt->bind_param("i", $shift_id);
+    $stmt->execute(); 
+    $stmt->close();
 }

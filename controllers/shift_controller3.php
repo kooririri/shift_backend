@@ -25,25 +25,38 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-
 $success_flag = false;
 
-if(is_array($request_data)){
+if($request_method === 'POST'){
     foreach($request_data as $val){
-        $black_user_id = $val['UserId'];
-        $nick_name = $val['NickName'];
-        $color_code = $val['ColorCode'];
-        $black_rank = $val['BlackRank'];
-        $user_id = $val['MyId'];
-        $group_id = $val['GroupId'];
+        $user_id = $val['UserId'];
+        $date = $val['Date'];
         $id = $val['Id'];
-        $sql = "INSERT INTO black_list(user_id,black_user_id,group_id,black_rank,color_code)VALUES(?,?,?,?,?)ON DUPLICATE KEY UPDATE user_id =?,black_user_id=?,group_id=?,black_rank=?,color_code=?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("iiiisiiiis",$user_id,$black_user_id,$group_id,$black_rank,$color_code,$user_id,$black_user_id,$group_id,$black_rank,$color_code);
-        if($stmt->execute()){
-            $success_flag = true;
+        $shift_id = $val['ShiftId'];
+        $type_id = $val['ShiftTypeId'];
+        $selected_flag = $val['SelectedFlag'];
+        $kaburu_flag = $val['KaburuFlag'];
+        if($kaburu_flag == 1){
+            if($selected_flag == 0){
+                $sql = "UPDATE shift_creation SET selected_flag = 9 WHERE shift_id = ? AND user_id = ? AND type_id = ? AND date = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("iiis",$shift_id,$user_id,$type_id,$date);
+                if($stmt->execute()){
+                    $success_flag = true;
+                }
+                $stmt->close();
+            }elseif($selected_flag == 8){
+                $sql = "UPDATE shift_creation SET selected_flag = 1 WHERE shift_id = ? AND user_id = ? AND type_id = ? AND date = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("iiis",$shift_id,$user_id,$type_id,$date);
+                if($stmt->execute()){
+                    $success_flag = true;
+                }
+                $stmt->close();
+            }
+           
         }
-        $stmt->close();
+        
     }
     if($success_flag){
         echo json_encode([
@@ -54,9 +67,5 @@ if(is_array($request_data)){
             'status' => 'ng'
         ]);
     }
-
-
 }
-
-
 $conn->close();

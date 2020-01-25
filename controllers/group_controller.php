@@ -77,15 +77,16 @@ if($request_method === 'POST'&&$post_no ===2){
                 'group_member_id' => $row['black_user_id'],
                 'black_rank' => $row['black_rank'],
                 'nickname' => $row['nickname'],
+                'color_code' => $row['color_code'],
             ];
         }
     }
     if(!empty($response_data)){
         echo json_encode(array('result' => $response_data));
     }else{
-        $sql = "SELECT u.nickname AS nickname,u.user_id AS group_member_id FROM group_member gm LEFT JOIN user u ON gm.user_id = u.user_id WHERE gm.group_id = ?";
+        $sql = "SELECT u.nickname AS nickname,u.user_id AS group_member_id FROM group_member gm LEFT JOIN user u ON gm.user_id = u.user_id WHERE gm.group_id = ? AND u.authority = 0 AND gm.user_id != ?";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $group_id);
+        $stmt->bind_param("ii", $group_id,$user_id);
         $stmt->execute();
         $result = $stmt->get_result();
         $response_data = [];
@@ -95,6 +96,7 @@ if($request_method === 'POST'&&$post_no ===2){
                     'nickname' => $row['nickname'],
                     'group_member_id' => $row['group_member_id'],
                     'black_rank' => 0,
+                    'color_code' => $row['color_code'],
                 ];
             }
         }

@@ -82,3 +82,10 @@ function update_shift_type($conn,$all_input_data){
 
     $stmt->close();
 }
+
+function delete_type($conn,$type_id){
+    $stmt = $conn->prepare("DELETE FROM shift_type WHERE type_id = ?");
+    $stmt->bind_param("i", $type_id);
+    $stmt->execute();
+    $stmt->close();
+}

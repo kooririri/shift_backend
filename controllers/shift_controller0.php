@@ -26,23 +26,23 @@ if ($conn->connect_error) {
 }
 
 
-$user_id = $request_data;
+$user_id = $request_data['user_id'];
 if($request_method === 'POST'){
-    $sql = "SELECT * FROM shift_group sg LEFT JOIN group_member gm ON sg.group_id = gm.group_id WHERE gm.user_id = ?";
+    $sql = "SELECT * FROM group_member gm LEFT JOIN shift_group sg ON sg.group_id = gm.group_id WHERE gm.user_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
-    $response_data = [];
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $response_data[] = [
-                'group_id' => $row['group_id'],
-                'name' => $row['name'],
-            ];
-        }
-    }
     $stmt->close();
+
+    $response_data = [];
+    while ($row = $result->fetch_assoc()) {
+        $response_data[] = [
+            'group_id' => $row['group_id'],
+            'name' => $row['name'],
+        ];
+    }
+
     echo json_encode(array('list' => $response_data));
 }
 
