@@ -25,6 +25,7 @@
             <li><a href="shift_element.php"> <i class="icon-interface-windows"></i>シフト作成 </a></li>
             <li><a href="shift_type.php"> <i class="icon-padnote"></i>シフトタイプ作成 </a></li>
             <li><a href="shift_type_display.php"> <i class="icon-page"></i>シフトタイプ確認 </a></li>
+            <li><a href="staff.php"> <i class="icon-user"></i>人員管理 </a></li>
             <li><a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-user"></i>グループ </a>
               <ul id="exampledropdownDropdown" class="collapse list-unstyled ">
                 <li><a href="shift_group.php">グループ作成</a></li>

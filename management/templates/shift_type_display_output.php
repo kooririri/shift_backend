@@ -25,6 +25,7 @@
             <li><a href="shift_element.php"> <i class="icon-interface-windows"></i>シフト作成 </a></li>
             <li><a href="shift_type.php"> <i class="icon-padnote"></i>シフトタイプ作成 </a></li>
             <li class="active"><a href="shift_type_display.php"> <i class="icon-page"></i>シフトタイプ確認 </a></li>
+            <li><a href="staff.php"> <i class="icon-user"></i>人員管理 </a></li>
             <li><a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-user"></i>グループ </a>
               <ul id="exampledropdownDropdown" class="collapse list-unstyled ">
                 <li><a href="shift_group.php">グループ作成</a></li>
@@ -37,14 +38,14 @@
           <!-- Page Header-->
           <header class="page-header">
             <div class="container-fluid">
-              <h2 class="no-margin-bottom">シフトタイプ作成</h2>
+              <h2 class="no-margin-bottom">シフトタイプ確認</h2>
             </div>
           </header>
           <!-- Breadcrumb-->
           <div class="breadcrumb-holder container-fluid">
             <ul class="breadcrumb">
               <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-              <li class="breadcrumb-item active">シフトタイプ作成            </li>
+              <li class="breadcrumb-item active">シフトタイプ確認            </li>
             </ul>
           </div>
           <!-- Forms Section-->
@@ -74,11 +75,19 @@
                         <?php endif; ?>
                         <div class="col-lg-6">
                             <div class="card">
+                            <div class="card-close">
+                              <div class="dropdown">
+                                <form method="post" action="./shift_type_display.php" id="close_form">
+                                  <input type="hidden" name="type_id" value="<?php echo $shift_type['type_id'] ?>" >
+                                  <input type="submit" name="button" value="X" id="closeCard1"  aria-haspopup="true" aria-expanded="false" class="dropdown-toggle">
+                                </form>
+                              </div>
+                              </div>
                                 <div class="card-header d-flex align-items-center">
                                 <h3 class="h4"><?php echo $shift_type['type_name']; ?></h3>
                                 </div>
                                 <div class="card-body"> 
-                                <form class="form-horizontal" action="./staff.php" method="post">
+                                <form class="form-horizontal" action="./shift_type_display.php" method="post" id="input_form">
                                     <div class="form-group row">
                                     <label class="col-sm-3 form-control-label">タイプ名</label>
                                     <div class="col-sm-9">
@@ -113,7 +122,7 @@
                                     </div>
                                     <div class="form-group row">       
                                     <div class="col-sm-9 offset-sm-3">
-                                        <input type="submit" value="更新" class="btn btn-primary">
+                                        <input type="submit" name="button" value="更新" class="btn btn-primary">
                                     </div>
                                     </div>
                                 </form>

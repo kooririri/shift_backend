@@ -25,6 +25,7 @@
             <li><a href="shift_element.php"> <i class="icon-interface-windows"></i>シフト作成 </a></li>
             <li class="active"><a href="shift_type.php"> <i class="icon-padnote"></i>シフトタイプ作成 </a></li>
             <li><a href="shift_type_display.php"> <i class="icon-page"></i>シフトタイプ確認 </a></li>
+            <li><a href="staff.php"> <i class="icon-user"></i>人員管理 </a></li>
             <li><a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-user"></i>グループ </a>
               <ul id="exampledropdownDropdown" class="collapse list-unstyled ">
                 <li><a href="shift_group.php">グループ作成</a></li>
@@ -56,16 +57,18 @@
                   <div class="card">
                     <div class="card-body">
                       <form method="post" action="./shift_type.php">
-                        <div class="form-group">
-                            <label class="form-control-label">シフト名</label>
-                            <select class="form-control mb-3" name="group_id" id = "group_id">
-                                <?php foreach ($shift_data as $val): ?>
-                                <option value="<?php echo $val['shift_id']; ?>">
-                                    <?php echo $val['shift_name']; ?>
-                                </option>
+                      <label class="form-control-label">グループ</label>
+                          <div class="form-group">
+                            <div class="input-group">
+                                <select class="form-control" name="group_id" id = "group_id">
+                                <?php foreach ($group_data as $val): ?>
+                                    <option value="<?php echo $val['group_id']; ?>">
+                                        <?php echo $val['name']; ?>
+                                    </option>
                                 <?php endforeach; ?>
-                            </select>
-                        </div>
+                                </select>
+                            </div>
+                          </div>
                         <div class="form-group">
                             <label class="form-control-label">タイプ名</label>
                             <input type="text" placeholder="タイプ名" class="form-control" id="type_name" name="type_name">

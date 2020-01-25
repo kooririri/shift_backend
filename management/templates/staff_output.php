@@ -111,6 +111,9 @@
                             <?php endforeach; ?>
                             </tbody>
                         </table>
+                        <div class="form-group">       
+                             <input type="submit" value="送信" class="btn btn-primary" id="send" name="send">
+                        </div>
                         </form>
                       </div>
                       </div>

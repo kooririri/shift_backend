@@ -60,32 +60,54 @@
                       </div>
                     <div class="card-body">                    
                       <div class="form-group">
-                       
                         <form action="./staff.php" method="post" id= "shift_form">   
-                            <label class="form-control-label">グループ</label>
-                            <select class="form-control mb-3" name="group_id" id = "group_id">
-                            <?php foreach ($group_data as $val): ?>
-                            <option value="<?php echo $val['group_id']; ?>">
-                                <?php echo $val['name']; ?>
-                            </option>
-                            <?php endforeach; ?>
-                            </select>   
-                          <label class="form-control-label">シフト名</label>
+                          <label class="form-control-label">グループ</label>
                           <div class="form-group">
                             <div class="input-group">
-                              <select class="form-control" name="shift_id" id = "shift_id">
-                              <?php foreach ($shift_data as $val2): ?>
-                                <option value="<?php echo $val2['shift_id']; ?>">
-                                    <?php echo $val2['shift_name']; ?>
-                                </option>
-                              <?php endforeach; ?>
-                              </select>
-                              <div class="input-group-append">
-                                <input type="submit" form="shift_form" class="btn btn-primary" name="button" value="確定">
-                              </div>
+                                <select class="form-control" name="group_id" id = "group_id">
+                                <?php foreach ($group_data as $val): ?>
+                                    <option value="<?php echo $val['group_id']; ?>">
+                                        <?php echo $val['name']; ?>
+                                    </option>
+                                <?php endforeach; ?>
+                                </select>
+                                <div class="input-group-append">
+                                    <input type="submit" form="shift_form" class="btn btn-primary" name="send" value="確定">
+                                </div>
                             </div>
                           </div>
                         </form>                       
+                      </div>
+                      <div class="card-body">
+                      <div class="table-responsive">
+                        <form method="post" action="./staff.php">
+                        <table class = "table table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <td>スタッフ名</td>
+                                <td>ランキング</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <?php foreach($users as $user): ?>
+                                <tr>
+                                    <td><?php echo $user['nickname']; ?></td>
+                                    <td>
+                                        <select class="form-control mb-3" name="<?php echo $user['user_id']; ?>">
+                                            <?php for($i = 1 ;$i <=5;$i++): ?>
+                                                <option value="<?php echo $i; ?>" <?php if($user['rank']==$i){echo 'selected';} ?>><?php echo $i; ?></option>
+                                            <?php endfor; ?>
+                                        </select>   
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <div class="form-group">       
+                             <input type="submit" value="送信" class="btn btn-primary" id="send" name="send">
+                        </div>
+                        </form>
+                      </div>
                       </div>
                     </div>
                   </div>
