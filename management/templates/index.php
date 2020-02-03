@@ -25,6 +25,9 @@
                   <div class="card">
                     <div class="card-body" style="margin: auto; margin-top:20%; margin-bottom:20%">
                       <h1>WELCOME 管理者様</h1>
+                      <form action = "./index.php" method="post" >
+                        <input type="submit"  class="btn btn-light" name="button" value="テストデータクリア">
+                      </form>
                     </div>
                   </div>
                 </div>

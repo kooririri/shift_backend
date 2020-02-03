@@ -4,7 +4,7 @@ const USERNAME = 'root';
 const PASSWORD = '';
 const DB_NAME = 'shift';
 
-// jsonを返す準備は整いました。本番環境だと、この辺の設定がもう少し増えますね。藤原もあんま分かってない。
+// jsonを返す準備は整いました。
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
@@ -92,9 +92,26 @@ if($request_method === 'POST'){
 
 
             echo json_encode(array('res_flg' => 2,'shift_id' => $shift_element_datas['shift_id'],'same_creation' => $same_creation,'shift_type_datas' => $shift_type_datas,'black_list' => $black_datas,'shift_request_datas' => $shift_request_datas));
+        }//完全確定
+        elseif($shift_element_datas['is_finished'] == 2){
+            $responsed_data = get_shift_request($conn,$shift_element_datas['shift_id'],$user_id);
+            $test_datas = get_shift_creation_by_user_id($conn,$shift_element_datas['shift_id'],$user_id);
+            for($i=0;$i<count($responsed_data);$i++){
+                $shift_id = $responsed_data[$i]['shift_id'];
+                $user_id = $responsed_data[$i]['user_id'];
+                $type_id = $responsed_data[$i]['type_id'];
+                $date = $responsed_data[$i]['date'];
+                foreach($test_datas as $val){
+                    if($type_id == $val['type_id'] && $date == $val['date']){
+                        $responsed_data[$i]['selected_flag'] = 7;
+                    }
+                }
+            }
+            echo json_encode(array('res_flg' => 3,'shift_id' => $shift_element_datas['shift_id'],'shift_type_datas' => $shift_type_datas,'shift_request_datas' => $responsed_data));
+
         }
     }else{
-        echo json_encode(array('res_flg' => 3));
+        echo json_encode(array('res_flg' => 4));
     }
 }
 
@@ -226,3 +243,27 @@ function get_shift_creation_by_user_id_and_date_and_type($conn,$shift_id,$user_i
     }
     return $shift_creation_datas;
 }
+
+function get_shift_request_by_user_id_selected_flag9($conn,$shift_id,$user_id){
+    $sql = "SELECT * FROM shift_request WHERE shift_id = ? AND user_id = ? AND selected_flag = 9";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("ii",$shift_id,$user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+
+    $shift_creation_datas = [];
+    while ($row = $result->fetch_assoc()) {
+        $shift_creation_datas[] = [
+            'id' => $row['id'],
+            'user_id' => $row['user_id'],
+            'date' => $row['date'],
+            'shift_id' => $row['shift_id'],
+            'type_id' => $row['type_id'],
+            'selected_flag' => $row['selected_flag'],
+            'kaburu_flag' => $row['kaburu_flag'],
+        ];
+    }
+    return $shift_creation_datas;
+}
+

@@ -4,7 +4,7 @@ const USERNAME = 'root';
 const PASSWORD = '';
 const DB_NAME = 'shift';
 
-// jsonを返す準備は整いました。本番環境だと、この辺の設定がもう少し増えますね。藤原もあんま分かってない。
+// jsonを返す準備は整いました。
 // header("Content-Type: application/json; charset=UTF-8");
 // header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 

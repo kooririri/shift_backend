@@ -4,7 +4,7 @@ const USERNAME = 'root';
 const PASSWORD = '';
 const DB_NAME = 'shift';
 
-// jsonを返す準備は整いました。本番環境だと、この辺の設定がもう少し増えますね。藤原もあんま分かってない。
+// jsonを返す準備は整いました。
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
@@ -39,6 +39,14 @@ if($request_method === 'POST'){
         if($kaburu_flag == 1){
             if($selected_flag == 0){
                 $sql = "UPDATE shift_creation SET selected_flag = 9 WHERE shift_id = ? AND user_id = ? AND type_id = ? AND date = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("iiis",$shift_id,$user_id,$type_id,$date);
+                if($stmt->execute()){
+                    $success_flag = true;
+                }
+                $stmt->close();
+
+                $sql = "UPDATE shift_request SET selected_flag = 1 WHERE shift_id = ? AND user_id = ? AND type_id = ? AND date = ?";
                 $stmt = $conn->prepare($sql);
                 $stmt->bind_param("iiis",$shift_id,$user_id,$type_id,$date);
                 if($stmt->execute()){

@@ -492,7 +492,7 @@ function change_shift_creation_by_id($conn,$creation_id,$type_id){
         $stmt->execute();
         $stmt->close();
     }else{
-        $stmt = $conn->prepare("UPDATE shift_creation SET type_id = ? WHERE id =?");
+        $stmt = $conn->prepare("UPDATE shift_creation SET type_id = ?,selected_flag = 1 WHERE id =?");
         $stmt->bind_param("ii", $type_id,$creation_id);
         $stmt->execute(); 
         $stmt->close();
@@ -551,6 +551,13 @@ function data_clear($conn,$shift_id){
 
 function shift_submit($conn,$shift_id){
     $stmt = $conn->prepare("UPDATE shift_element SET is_finished = 1 WHERE shift_id = ?");
+    $stmt->bind_param("i", $shift_id);
+    $stmt->execute(); 
+    $stmt->close();
+}
+
+function shift_release($conn,$shift_id){
+    $stmt = $conn->prepare("UPDATE shift_element SET is_finished = 2 WHERE shift_id = ?");
     $stmt->bind_param("i", $shift_id);
     $stmt->execute(); 
     $stmt->close();

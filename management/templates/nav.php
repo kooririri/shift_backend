@@ -2,7 +2,7 @@
 <nav class="side-navbar">
   <!-- Sidebar Header-->
   <div class="sidebar-header d-flex align-items-center">
-    <div class="avatar"><img src="img/avatar-1.jpg" alt="..." class="img-fluid rounded-circle"></div>
+    <div class="avatar"><img src="img/piao.jpg" alt="..." class="img-fluid rounded-circle"></div>
     <div class="title">
       <h1 class="h4">管理者様</h1>
       <p>おはよう</p>

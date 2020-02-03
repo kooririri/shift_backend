@@ -42,6 +42,9 @@ if(!$_POST){
         shift_submit($conn,$shift_id);
         $flag = LOGIC_check_shift($conn,$shift_id);
         require "./templates/shift_creation_output.php";
+    }elseif($_POST['button'] == "最終確定"){
+        $flag = LOGIC_check_shift($conn,$shift_id);
+        require "./templates/shift_creation_output.php";
     }
     // var_dump($flag);
    

@@ -10,7 +10,7 @@
         <nav class="side-navbar">
         <!-- Sidebar Header-->
           <div class="sidebar-header d-flex align-items-center">
-            <div class="avatar"><img src="img/avatar-1.jpg" alt="..." class="img-fluid rounded-circle"></div>
+            <div class="avatar"><img src="img/piao.jpg" alt="..." class="img-fluid rounded-circle"></div>
             <div class="title">
               <h1 class="h4">管理者様</h1>
               <p>おはよう</p>
@@ -107,7 +107,7 @@
                                   <th colspan="<?php echo count($users)/2; ?>">
                                     <form action = "./shift_creation.php" method="post" >
                                       <input type = "hidden" name="shift_id" value="<?php echo $shift_id; ?>">
-                                      <input type="submit"  class="btn btn-light" name="button" value="一時確定">
+                                      <input type="submit"  class="btn btn-warning" name="button" value="最終確定">
                                     </form>
                                   </th>
                                 </tr>
@@ -124,18 +124,19 @@
                                 </tr>
                               </thead>
                               <tbody>
-                                <?php foreach ($days as $day): ?>
+                                <?php foreach ($days as $day):
+                                   $staff_requirement = get_staff_number_requirement_by_date($conn,$shift_id,$day);
+                                   $staff_number = get_staff_number_by_date($conn,$shift_id,$day); ?>
                                   <tr>
+                                    <?php if($staff_requirement['total_number'] > $staff_number['count']): ?>
                                     <th>
-                                      <!-- <form method="post" action="shift_adjustion.php"> -->
-                                        <?php  
-                                          $staff_requirement = get_staff_number_requirement_by_date($conn,$shift_id,$day);
-                                          $staff_number = get_staff_number_by_date($conn,$shift_id,$day);
-                                        ?>
-                                        <input class="btn btn-light" type="submit" name = "button" value="<?php echo $day." (".$staff_requirement['total_number']."/".$staff_number['count'].")"; ?>">
-                                      <!-- </form> -->
-                                      
+                                        <input class="btn btn-light" type="submit"  style="background-color: red ;color:white" name = "button" value="<?php echo $day." (".$staff_requirement['total_number']."/".$staff_number['count'].")"; ?>">
                                     </th>
+                                    <?php else: ?>
+                                      <th>
+                                        <input class="btn btn-light" type="submit"  name = "button" value="<?php echo $day." (".$staff_requirement['total_number']."/".$staff_number['count'].")"; ?>">
+                                    </th>
+                                    <?php endif; ?>
                                     <?php foreach ($users as $user): ?>
                                       <?php 
                                         $shift_for_eachday = get_shift_for_eachday($conn,$shift_id,$user['user_id'],$day);
@@ -145,7 +146,7 @@
                                           
                                             <?php if($shift_for_eachday['selected_flag'] == 9): ?>
                                               <th style = "background-color:#EA0000">
-                                              <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$shift_for_eachday['id']; ?>" class="btn btn-link"><?php echo '取消済'; ?></button>
+                                              <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$shift_for_eachday['id']; ?>" class="btn btn-link" style="color:#ffffff;"><?php echo '取消済'; ?></button>
                                             <?php elseif($shift_for_eachday['selected_flag'] == 1): ?>
                                               <th style = "background-color:<?php echo $shift_for_eachday['type_color']; ?>">
                                               <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$shift_for_eachday['id']; ?>" class="btn btn-link"><?php echo $shift_for_eachday['type_name']; ?></button>
