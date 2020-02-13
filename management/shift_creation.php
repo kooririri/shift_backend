@@ -1,6 +1,7 @@
 <?php
 require "../init.php";
 require "../logics/shift_creation.php";
+require "../util.php";
 $shift_id = 0;
 $flag = 0;
 if(!$_POST){
@@ -41,9 +42,12 @@ if(!$_POST){
     }elseif($_POST['button'] == "一時確定"){
         shift_submit($conn,$shift_id);
         $flag = LOGIC_check_shift($conn,$shift_id);
+        sendNotification("仮シフト発表", "仮シフトが発表された。修正期限まで確認してください", ["new_post_id" => "605"], "AAAA9VyMlfk:APA91bFN4Ff-wBXeOVFIB-FRKTC29GrJEpdR0iNFHAmTCzggXXNlmb6pPUczvtfbTFSpa0riPODHn43IIjemsjxyHHCS5oNsYiHp77WGJ7MfGe6-E9gOzgtNYElKEQ8QJ4k7fbdHEGiG");        
         require "./templates/shift_creation_output.php";
     }elseif($_POST['button'] == "最終確定"){
         $flag = LOGIC_check_shift($conn,$shift_id);
+        shift_release($conn,$shift_id);
+        sendNotification("シフト最終発表", "シフトが発表された。ご確認ください。", ["new_post_id" => "605"], "AAAA9VyMlfk:APA91bFN4Ff-wBXeOVFIB-FRKTC29GrJEpdR0iNFHAmTCzggXXNlmb6pPUczvtfbTFSpa0riPODHn43IIjemsjxyHHCS5oNsYiHp77WGJ7MfGe6-E9gOzgtNYElKEQ8QJ4k7fbdHEGiG");       
         require "./templates/shift_creation_output.php";
     }
     // var_dump($flag);

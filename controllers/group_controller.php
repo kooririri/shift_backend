@@ -65,25 +65,6 @@ if($request_method === 'POST'&&$post_no ===1){
 
 
 if($request_method === 'POST'&&$post_no ===2){
-    $stmt = $conn->prepare("SELECT * FROM black_list b LEFT JOIN user u ON b.black_user_id = u.user_id WHERE b.user_id = ? AND b.group_id = ? AND u.authority = 0");
-    $stmt->bind_param("ii", $user_id,$group_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $response_data = [];
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $response_data[] = [
-                'user_id' => $row['user_id'],
-                'group_member_id' => $row['black_user_id'],
-                'black_rank' => $row['black_rank'],
-                'nickname' => $row['nickname'],
-                'color_code' => $row['color_code'],
-            ];
-        }
-    }
-    if(!empty($response_data)){
-        echo json_encode(array('result' => $response_data));
-    }else{
         $sql = "SELECT u.nickname AS nickname,u.user_id AS group_member_id FROM group_member gm LEFT JOIN user u ON gm.user_id = u.user_id WHERE gm.group_id = ? AND u.authority = 0 AND gm.user_id != ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("ii", $group_id,$user_id);
@@ -96,13 +77,32 @@ if($request_method === 'POST'&&$post_no ===2){
                     'nickname' => $row['nickname'],
                     'group_member_id' => $row['group_member_id'],
                     'black_rank' => 0,
-                    'color_code' => $row['color_code'],
+                    'color_code' => -1,
                 ];
             }
         }
         $stmt->close();
+        
+        for($i = 0;$i < count($response_data); $i++){
+            $sql = "SELECT * FROM black_list WHERE user_id = ? AND black_user_id = ?";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("ii", $user_id,$response_data[$i]['group_member_id']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $temp = [];
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $temp[] = [
+                        'color_code' => $row['color_code'],
+                        'black_rank' => $row['black_rank'],
+                    ];
+                }
+            }
+            $stmt->close();
+            $response_data[$i]['color_code'] = $temp[0]['color_code'];
+            $response_data[$i]['black_rank'] = $temp[0]['black_rank'];
+        }
         echo json_encode(array('result' => $response_data));
-    }
 }
 
 

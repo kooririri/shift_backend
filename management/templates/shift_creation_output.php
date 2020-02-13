@@ -130,11 +130,11 @@
                                   <tr>
                                     <?php if($staff_requirement['total_number'] > $staff_number['count']): ?>
                                     <th>
-                                        <input class="btn btn-light" type="submit"  style="background-color: red ;color:white" name = "button" value="<?php echo $day." (".$staff_requirement['total_number']."/".$staff_number['count'].")"; ?>">
+                                        <input class="btn btn-light" type="submit"  style="background-color: red ;color:white" name = "button" value="<?php echo $day."(".getweek($day).")"." [".$staff_requirement['total_number']."/".$staff_number['count']."]"; ?>">
                                     </th>
                                     <?php else: ?>
                                       <th>
-                                        <input class="btn btn-light" type="submit"  name = "button" value="<?php echo $day." (".$staff_requirement['total_number']."/".$staff_number['count'].")"; ?>">
+                                        <input class="btn btn-light" type="submit"  name = "button" value="<?php echo $day."(".getweek($day).")"." [".$staff_requirement['total_number']."/".$staff_number['count']."]"; ?>">
                                     </th>
                                     <?php endif; ?>
                                     <?php foreach ($users as $user): ?>
@@ -223,18 +223,18 @@
                                           </th>
                                           <?php
                                         }else{
-                                          ?>
-                                          <th> 
-                                            <?php 
                                               $checked_data = check_cancel_by_black_list($conn,$shift_id,$day);
                                               $abled_data = find_abled_staff_by_date($conn,$user['user_id'],$day,-1);
                                             ?>
-                                            <?php if(count($checked_data)>0): ?>                       
+                                            <?php if(count($checked_data)>0): ?>      
+                                              <th>                  
                                             <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$day.$user['user_id']; ?>" class="btn btn-link"><?php echo "Cancelled"; ?></button>
                                             <?php elseif(count($abled_data)>0): ?>
+                                              <th> 
                                             <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$day.$user['user_id']; ?>" class="btn btn-link"><?php echo "可能"; ?></button>
                                             <?php else: ?>
-                                            <button type="button" data-toggle="modal" data-target= "<?php echo "#pop".$day.$user['user_id']; ?>" class="btn btn-link"><?php echo "休み"; ?></button>
+                                              <th style="background-color: #808080"> 
+                                            <button style="color:#ffffff;" type="button" data-toggle="modal" data-target= "<?php echo "#pop".$day.$user['user_id']; ?>" class="btn btn-link"><?php echo "休み"; ?></button>
                                             <?php endif; ?>
                                             <div id="<?php echo "pop".$day.$user['user_id']; ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" class="modal fade text-left">
                                                 <div role="document" class="modal-dialog">

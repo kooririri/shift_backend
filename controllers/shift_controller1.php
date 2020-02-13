@@ -81,10 +81,16 @@ if($request_method === 'POST'){
                 $date = $shift_request_datas[$i]['date'];
                 $type_id = $shift_request_datas[$i]['type_id'];
                 foreach($black_datas as $black_data){
+                    $temp_val_by_date = get_shift_creation_by_user_id_and_date($conn,$shift_element_datas['shift_id'],$black_data['black_user_id'],$date);
                     $temp_val = get_shift_creation_by_user_id_and_date_and_type($conn,$shift_element_datas['shift_id'],$black_data['black_user_id'],$date,$type_id);
+                    foreach($temp_val_by_date as $val){
+                        if($date == $val['date']){
+                            $shift_request_datas[$i]['kaburu_flag'] = 1;//日にちだけ被る場合
+                        }
+                    }
                     foreach($temp_val as $val){
                         if($date == $val['date']&&$type_id == $val['type_id']){
-                            $shift_request_datas[$i]['kaburu_flag'] = 1;
+                            $shift_request_datas[$i]['kaburu_flag'] = 2;//日にちとタイプ完全に被る場合
                         }
                     }
                 }
@@ -226,6 +232,28 @@ function get_shift_creation_by_user_id_and_date_and_type($conn,$shift_id,$user_i
     $sql = "SELECT * FROM shift_creation WHERE shift_id = ? AND user_id = ? AND date = ? AND type_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("iisi",$shift_id,$user_id,$date,$type_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $stmt->close();
+
+    $shift_creation_datas = [];
+    while ($row = $result->fetch_assoc()) {
+        $shift_creation_datas[] = [
+            'id' => $row['id'],
+            'user_id' => $row['user_id'],
+            'date' => $row['date'],
+            'shift_id' => $row['shift_id'],
+            'type_id' => $row['type_id'],
+            'selected_flag' => $row['selected_flag'],
+        ];
+    }
+    return $shift_creation_datas;
+}
+
+function get_shift_creation_by_user_id_and_date($conn,$shift_id,$user_id,$date){
+    $sql = "SELECT * FROM shift_creation WHERE shift_id = ? AND user_id = ? AND date = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("iis",$shift_id,$user_id,$date);
     $stmt->execute();
     $result = $stmt->get_result();
     $stmt->close();

@@ -2,7 +2,7 @@
 require "../init.php";
 require "./templates/index.php";
 if($_POST){
-    data_clear($conn,2,1);
+    data_clear($conn,3,1);
 }
 
 function data_clear($conn,$shift_id,$user_id){
