@@ -44,7 +44,6 @@ function get_all_shift_element_by_group_id($conn,$group_id){
 
 function LOGIC_make_shift($conn,$shift_id)
 {
-    //group_idとshift_monthによりshift_idを取得
     $sql = "SELECT * FROM shift_element WHERE shift_id = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $shift_id);
@@ -143,6 +142,49 @@ function LOGIC_make_shift($conn,$shift_id)
                 $stmt->close();
             }
         }
+    }
+    //五日連続出勤を禁止
+    foreach($users as $user){
+        $sql = "SELECT * FROM shift_creation WHERE user_id = ? AND selected_flag = 1";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $user['user_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->close();
+        $res = [];
+        while ($row = $result->fetch_assoc()) {
+            $res[] = [
+                'shift_id' => $row['shift_id'],
+                'user_id' => $row['user_id'],
+                'type_id' => $row['type_id'],
+                'date' => $row['date'],
+                'selected_flag' => $row['selected_flag'],
+            ];
+        }
+        $temp = 1;
+        for($i=0;$i<count($days);$i=$i+$temp){
+            for($j=0;$j<count($res);$j++){
+                if($days[$i] == $res[$j]['date']){
+                    $temp = 1;
+                    if($days[$i+1] == $res[$j+1]['date']){
+                        $temp = 2;
+                        if($days[$i+2] == $res[$j+2]['date']){
+                            $temp = 3;
+                            if($days[$i+3] == $res[$j+3]['date']){
+                                $temp = 4;
+                                if($days[$i+4] == $res[$j+4]['date']){
+                                    $temp = 5;
+                                    $stmt = $conn->prepare("DELETE FROM shift_creation WHERE shift_id = ? AND user_id = ? AND date = ? AND type_id = ?");
+                                    $stmt->bind_param("iisi", $shift_id,$res[$j+4]['user_id'],$res[$j+4]['date'],$res[$j+4]['type_id']);
+                                    $stmt->execute();
+                                    $stmt->close();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }        
     }
    
 }

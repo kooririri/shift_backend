@@ -66,7 +66,6 @@ if($request_method === 'POST'){
                     'selected_flag' => $row['selected_flag'],
                 ];
             }
-            $same_creation = array();
             $my_shift_creations = get_shift_creation_by_user_id($conn,$shift_element_datas['shift_id'],$user_id);
             for($i=0;$i<count($shift_request_datas);$i++){
                 $date = $shift_request_datas[$i]['date'];
@@ -78,14 +77,18 @@ if($request_method === 'POST'){
                 }
             }
             for($i=0;$i<count($shift_request_datas);$i++){
+                $shift_request_datas[$i]['kaburu_user_id'] =0;
+                $shift_request_datas[$i]['color_code'] =0;
                 $date = $shift_request_datas[$i]['date'];
                 $type_id = $shift_request_datas[$i]['type_id'];
                 foreach($black_datas as $black_data){
-                    $temp_val_by_date = get_shift_creation_by_user_id_and_date($conn,$shift_element_datas['shift_id'],$black_data['black_user_id'],$date);
+                    $temp_val_by_date = get_shift_creation_by_user_id_and_date($conn,$shift_element_datas['shift_id'],$user_id,$black_data['black_user_id'],$date);
                     $temp_val = get_shift_creation_by_user_id_and_date_and_type($conn,$shift_element_datas['shift_id'],$black_data['black_user_id'],$date,$type_id);
                     foreach($temp_val_by_date as $val){
                         if($date == $val['date']){
                             $shift_request_datas[$i]['kaburu_flag'] = 1;//日にちだけ被る場合
+                            $shift_request_datas[$i]['kaburu_user_id'] =$val['black_user_id'];
+                            $shift_request_datas[$i]['color_code'] =$val['color_code'];
                         }
                     }
                     foreach($temp_val as $val){
@@ -97,7 +100,7 @@ if($request_method === 'POST'){
             }
 
 
-            echo json_encode(array('res_flg' => 2,'shift_id' => $shift_element_datas['shift_id'],'same_creation' => $same_creation,'shift_type_datas' => $shift_type_datas,'black_list' => $black_datas,'shift_request_datas' => $shift_request_datas));
+            echo json_encode(array('res_flg' => 2,'shift_id' => $shift_element_datas['shift_id'],'shift_type_datas' => $shift_type_datas,'black_list' => $black_datas,'shift_request_datas' => $shift_request_datas));
         }//完全確定
         elseif($shift_element_datas['is_finished'] == 2){
             $responsed_data = get_shift_request($conn,$shift_element_datas['shift_id'],$user_id);
@@ -189,7 +192,7 @@ function get_shift_request($conn,$shift_id,$user_id){
 }
 
 function get_black_list($conn,$user_id){
-    $sql = "SELECT * FROM black_list WHERE user_id = ? AND black_rank != 0";
+    $sql = "SELECT * FROM black_list WHERE user_id = ? AND black_rank != 0 ORDER BY black_rank ASC";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i",$user_id);
     $stmt->execute();
@@ -250,10 +253,10 @@ function get_shift_creation_by_user_id_and_date_and_type($conn,$shift_id,$user_i
     return $shift_creation_datas;
 }
 
-function get_shift_creation_by_user_id_and_date($conn,$shift_id,$user_id,$date){
-    $sql = "SELECT * FROM shift_creation WHERE shift_id = ? AND user_id = ? AND date = ?";
+function get_shift_creation_by_user_id_and_date($conn,$shift_id,$user_id,$black_user_id,$date){
+    $sql = "SELECT * FROM shift_creation sc LEFT JOIN black_list bl ON sc.user_id = bl.black_user_id WHERE shift_id = ? AND sc.user_id = ? AND date = ? AND bl.user_id = ? ORDER BY bl.black_rank ASC";
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("iis",$shift_id,$user_id,$date);
+    $stmt->bind_param("iisi",$shift_id,$black_user_id,$date,$user_id);
     $stmt->execute();
     $result = $stmt->get_result();
     $stmt->close();
@@ -267,6 +270,9 @@ function get_shift_creation_by_user_id_and_date($conn,$shift_id,$user_id,$date){
             'shift_id' => $row['shift_id'],
             'type_id' => $row['type_id'],
             'selected_flag' => $row['selected_flag'],
+            'black_user_id' => $row['black_user_id'],
+            'black_rank' => $row['black_rank'],
+            'color_code' => $row['color_code'],
         ];
     }
     return $shift_creation_datas;

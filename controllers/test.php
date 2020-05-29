@@ -36,7 +36,6 @@ if(is_array($request_data)){
         $black_rank = $val['BlackRank'];
         $user_id = $val['MyId'];
         $group_id = $val['GroupId'];
-        $id = $val['Id'];
         $sql = "INSERT INTO black_list(user_id,black_user_id,group_id,black_rank,color_code)VALUES(?,?,?,?,?)ON DUPLICATE KEY UPDATE user_id =?,black_user_id=?,group_id=?,black_rank=?,color_code=?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("iiiisiiiis",$user_id,$black_user_id,$group_id,$black_rank,$color_code,$user_id,$black_user_id,$group_id,$black_rank,$color_code);
